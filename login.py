@@ -4,9 +4,12 @@ import requests
 from constant import baseURL
 
 
-def getSession():
+def getSession(MoodleSession=None):
     r_sess = requests.Session()
-    r = r_sess.get(baseURL)  # get first moodle session
+    if MoodleSession == None:
+        r = r_sess.get(baseURL)  # get first moodle session
+    else:
+        r_sess.cookies = dict({"MoodleSession": MoodleSession})
     return r_sess
 
 
@@ -33,7 +36,9 @@ def login(username, password, session):
     soup = BeautifulSoup(r.text, 'html.parser')
     loginErroTags = soup.find("a", {"id": "loginerrormessage"})
     if loginErroTags != None and len(loginErroTags) > 0:
-        raise Exception('Login fail: {message}'.format(message = loginErroTags.contents[0]))
+        raise Exception('Login fail: {message}'.format(
+            message=loginErroTags.contents[0]))
+
 
 def getSesskey(soup):
     return soup.find('input', {"name": "sesskey"})['value']
